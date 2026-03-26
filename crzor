@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
 -- Solo para celular/tablet
@@ -7,26 +8,70 @@ if not UserInputService.TouchEnabled or UserInputService.MouseEnabled then
     return -- sale si hay mouse real (PC)
 end
 
+-- Crear ScreenGui
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.ResetOnSpawn = false
 
+-- Crear cursor
 local fakeMouse = Instance.new("ImageLabel")
-fakeMouse.Size = UDim2.new(0, 20, 0, 20) -- tamaño pequeño
-fakeMouse.ZIndex = 99999 -- encima de todo
+fakeMouse.Size = UDim2.new(0, 20, 0, 20) -- pequeño
+fakeMouse.ZIndex = 999
 fakeMouse.BackgroundTransparency = 1
 fakeMouse.AnchorPoint = Vector2.new(0.5, 0.5)
+fakeMouse.Image = "rbxassetid://5659139479" -- cursor normal
 fakeMouse.Parent = gui
 
--- Cursor con tu ID personalizado
-fakeMouse.Image = "rbxassetid://5659139479"
+-- Tween para mover suavemente
+local tweenInfo = TweenInfo.new(
+    0.05, -- duración del tween
+    Enum.EasingStyle.Quad,
+    Enum.EasingDirection.Out
+)
 
--- Actualiza posición con touch
+local function moveCursor(position)
+    local goal = {Position = UDim2.new(0, position.X, 0, position.Y)}
+    local tween = TweenService:Create(fakeMouse, tweenInfo, goal)
+    tween:Play()
+end
+
+-- Eventos de touch para mover cursor
 UserInputService.InputChanged:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch then
-        fakeMouse.Position = UDim2.new(0, input.Position.X, 0, input.Position.Y)
+        moveCursor(input.Position)
     end
 end)
 
 UserInputService.TouchMoved:Connect(function(input)
-    fakeMouse.Position = UDim2.new(0, input.Position.X, 0, input.Position.Y)
+    moveCursor(input.Position)
+end)
+
+-- Cambiar cursor al tocar un botón
+local function onButtonClicked(button)
+    fakeMouse.Image = "rbxassetid://5659222007" -- imagen de click
+    -- opcional: volver al cursor normal después de un tiempo
+    task.delay(0.1, function()
+        fakeMouse.Image = "rbxassetid://5659139479"
+    end)
+end
+
+-- Detectar todos los botones en PlayerGui
+local function connectButtons(parent)
+    for _, obj in ipairs(parent:GetDescendants()) do
+        if obj:IsA("TextButton") or obj:IsA("ImageButton") then
+            obj.MouseButton1Click:Connect(function()
+                onButtonClicked(obj)
+            end)
+        end
+    end
+end
+
+connectButtons(player:WaitForChild("PlayerGui"))
+
+-- Si se crean botones nuevos en el futuro
+player.PlayerGui.DescendantAdded:Connect(function(obj)
+    if obj:IsA("TextButton") or obj:IsA("ImageButton") then
+        obj.MouseButton1Click:Connect(function()
+            onButtonClicked(obj)
+        end)
+    end
 end)
