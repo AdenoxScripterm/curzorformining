@@ -1,0 +1,32 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+-- Solo para celular/tablet
+if not UserInputService.TouchEnabled or UserInputService.MouseEnabled then
+    return -- sale si hay mouse real (PC)
+end
+
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.ResetOnSpawn = false
+
+local fakeMouse = Instance.new("ImageLabel")
+fakeMouse.Size = UDim2.new(0, 20, 0, 20) -- tamaño pequeño
+fakeMouse.ZIndex = 99999 -- encima de todo
+fakeMouse.BackgroundTransparency = 1
+fakeMouse.AnchorPoint = Vector2.new(0.5, 0.5)
+fakeMouse.Parent = gui
+
+-- Cursor con tu ID personalizado
+fakeMouse.Image = "rbxassetid://5659139479"
+
+-- Actualiza posición con touch
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        fakeMouse.Position = UDim2.new(0, input.Position.X, 0, input.Position.Y)
+    end
+end)
+
+UserInputService.TouchMoved:Connect(function(input)
+    fakeMouse.Position = UDim2.new(0, input.Position.X, 0, input.Position.Y)
+end)
