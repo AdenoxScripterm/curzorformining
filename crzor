@@ -14,7 +14,7 @@ gui.ResetOnSpawn = false
 
 -- Crear cursor
 local fakeMouse = Instance.new("ImageLabel")
-fakeMouse.Size = UDim2.new(0, 20, 0, 20) -- pequeño
+fakeMouse.Size = UDim2.new(0, 30, 0, 30) -- tamaño del cursor
 fakeMouse.ZIndex = 999
 fakeMouse.BackgroundTransparency = 1
 fakeMouse.AnchorPoint = Vector2.new(0.5, 0.5)
